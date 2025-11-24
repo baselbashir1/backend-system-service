@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service
@@ -20,42 +22,51 @@ public class BundleServiceImpl implements BundleService {
     private final BundleRepository bundleRepository;
 
     @Override
-    public BundleResponse getBundleById(Long id) {
-        return bundleMapper.mapToBundleResponse(bundleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Bundle not found")));
+    public Mono<BundleResponse> getBundleById(Long id) {
+        return Mono.fromCallable(() ->
+                bundleMapper.mapToBundleResponse(bundleRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Bundle not found"))
+                )
+        ).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    public void createBundle(BundleRequest request) {
-        Bundle bundle = bundleRepository.findByName(request.name());
+    public Mono<Void> createBundle(BundleRequest request) {
+        return Mono.fromRunnable(() -> {
+            Bundle bundle = bundleRepository.findByName(request.name());
 
-        if (bundle != null) {
-            throw new EntityExistsException("Bundle with name " + request.name() + " already exists");
-        }
+            if (bundle != null) {
+                throw new EntityExistsException("Bundle with name " + request.name() + " already exists");
+            }
 
-        bundleRepository.save(bundleMapper.mapToBundle(request));
-        log.info("Bundle created successfully");
+            bundleRepository.save(bundleMapper.mapToBundle(request));
+            log.info("Bundle created successfully");
+        }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
     @Override
-    public void updateBundle(Long id, BundleRequest request) {
-        Bundle bundle = bundleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Bundle not found"));
+    public Mono<Void> updateBundle(Long id, BundleRequest request) {
+        return Mono.fromRunnable(() -> {
+            Bundle bundle = bundleRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Bundle not found"));
 
-        if (request.name() != null) bundle.setName(request.name());
-        if (request.description() != null) bundle.setDescription(request.description());
-        if (request.price() != null) bundle.setPrice(request.price());
+            if (request.name() != null) bundle.setName(request.name());
+            if (request.description() != null) bundle.setDescription(request.description());
+            if (request.price() != null) bundle.setPrice(request.price());
 
-        bundleRepository.save(bundle);
-        log.info("Bundle updated successfully");
+            bundleRepository.save(bundle);
+            log.info("Bundle updated successfully");
+        }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
     @Override
-    public void deleteBundle(Long id) {
-        if (!bundleRepository.existsById(id)) {
-            throw new EntityNotFoundException("Bundle not found");
-        }
-        bundleRepository.deleteById(id);
-        log.info("Bundle deleted successfully");
+    public Mono<Void> deleteBundle(Long id) {
+        return Mono.fromRunnable(() -> {
+            if (!bundleRepository.existsById(id)) {
+                throw new EntityNotFoundException("Bundle not found");
+            }
+            bundleRepository.deleteById(id);
+            log.info("Bundle deleted successfully");
+        }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 }
