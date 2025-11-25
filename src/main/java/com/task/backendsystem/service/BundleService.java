@@ -2,14 +2,13 @@ package com.task.backendsystem.service;
 
 import com.task.backendsystem.dto.request.BundleRequest;
 import com.task.backendsystem.dto.response.BundleResponse;
-import reactor.core.publisher.Mono;
 
 public interface BundleService {
-    Mono<BundleResponse> getBundleById(Long id);
+    BundleResponse getBundle(Long id);
 
-    Mono<Void> createBundle(BundleRequest request);
+    void createBundle(BundleRequest request);
 
-    Mono<Void> updateBundle(Long id, BundleRequest request);
+    void updateBundle(Long id, BundleRequest request);
 
-    Mono<Void> deleteBundle(Long id);
+    void deleteBundle(Long id);
 }

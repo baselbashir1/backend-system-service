@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,26 +18,25 @@ public class BundleController {
     private final BundleService bundleService;
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<BundleResponse>> getBundle(@PathVariable Long id) {
-        return bundleService.getBundleById(id).map(ResponseEntity::ok);
+    public ResponseEntity<BundleResponse> getBundle(@PathVariable Long id) {
+        return new ResponseEntity<>(bundleService.getBundle(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public Mono<ResponseEntity<String>> createBundle(@Valid @RequestBody BundleRequest request) {
-        return bundleService.createBundle(request)
-                .then(Mono.just(ResponseEntity.status(HttpStatus.CREATED)
-                        .body("Bundle created successfully")));
+    public ResponseEntity<String> createBundle(@Valid @RequestBody BundleRequest request) {
+        bundleService.createBundle(request);
+        return new ResponseEntity<>("Bundle created successfully", HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    public Mono<ResponseEntity<String>> updateBundle(@PathVariable Long id, @Valid @RequestBody BundleRequest request) {
-        return bundleService.updateBundle(id, request)
-                .then(Mono.just(ResponseEntity.ok("Bundle updated successfully")));
+    public ResponseEntity<String> updateBundle(@PathVariable Long id, @Valid @RequestBody BundleRequest request) {
+        bundleService.updateBundle(id, request);
+        return new ResponseEntity<>("Bundle updated successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<String>> deleteBundle(@PathVariable Long id) {
-        return bundleService.deleteBundle(id)
-                .then(Mono.just(ResponseEntity.ok("Bundle deleted successfully")));
+    public ResponseEntity<String> deleteBundle(@PathVariable Long id) {
+        bundleService.deleteBundle(id);
+        return new ResponseEntity<>("Bundle deleted successfully", HttpStatus.OK);
     }
 }
