@@ -23,6 +23,7 @@ This service represents a backend system connected to MySQL.
 - Flyway
 - Lombok
 - AOP for logging
+- ControllerAdvice for exception handling
 
 ## Build & Run
 ```bash
