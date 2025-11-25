@@ -20,13 +20,13 @@ public class BundleServiceImpl implements BundleService {
     private final BundleRepository bundleRepository;
 
     @Override
-    public BundleResponse getBundle(Long id) {
+    public BundleResponse getBundle(Long id, String correlationId) {
         return bundleMapper.mapToBundleResponse(bundleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bundle not found")));
     }
 
     @Override
-    public void createBundle(BundleRequest request) {
+    public void createBundle(BundleRequest request, String correlationId) {
         Bundle bundle = bundleRepository.findByName(request.name());
 
         if (bundle != null) {
@@ -38,7 +38,7 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
-    public void updateBundle(Long id, BundleRequest request) {
+    public void updateBundle(Long id, BundleRequest request, String correlationId) {
         Bundle bundle = bundleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bundle not found"));
 
@@ -51,7 +51,7 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
-    public void deleteBundle(Long id) {
+    public void deleteBundle(Long id, String correlationId) {
         if (!bundleRepository.existsById(id)) {
             throw new EntityNotFoundException("Bundle not found");
         }

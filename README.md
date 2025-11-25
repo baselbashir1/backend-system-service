@@ -22,6 +22,7 @@ This service represents a backend system connected to MySQL.
 - Validation
 - Flyway
 - Lombok
+- AOP for logging
 
 ## Build & Run
 ```bash
